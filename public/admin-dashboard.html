@@ -1,632 +1,579 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Leela Hospitals</title>
-  <style>
-    /* ===== RESET ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #f5f6fa;
-      color: #2d3436;
-    }
-    
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 240px;
-      height: 100vh;
-      background: #1a1a2e;
-      color: #fff;
-      padding: 0;
-      overflow-y: auto;
-      z-index: 1000;
-      transition: transform 0.3s ease;
-    }
-    
-    .sidebar-brand {
-      padding: 24px 20px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      text-align: center;
-    }
-    
-    .sidebar-brand h2 {
-      font-size: 20px;
-      font-weight: 700;
-      color: #f97316;
-      letter-spacing: -0.5px;
-    }
-    
-    .sidebar-brand p {
-      font-size: 11px;
-      color: #8892b0;
-      margin-top: 4px;
-      letter-spacing: 0.5px;
-    }
-    
-    .sidebar-menu {
-      list-style: none;
-      padding: 12px 0;
-    }
-    
-    .sidebar-menu li {
-      padding: 11px 24px;
-      margin: 2px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-      color: #a8b2d1;
-    }
-    
-    .sidebar-menu li:hover {
-      background: rgba(249, 115, 22, 0.12);
-      color: #fff;
-    }
-    
-    .sidebar-menu li.active {
-      background: #f97316;
-      color: #fff;
-    }
-    
-    /* ===== MAIN CONTENT ===== */
-    .main-content {
-      margin-left: 240px;
-      padding: 24px 32px 40px;
-      min-height: 100vh;
-    }
-    
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    
-    .page-header h1 {
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-    
-    .page-header h1 span {
-      color: #f97316;
-    }
-    
-    .hamburger {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #2d3436;
-      padding: 4px 8px;
-    }
-    
-    /* ===== STATS GRID ===== */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    
-    .stat-card {
-      background: #fff;
-      padding: 18px 20px;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      border: 1px solid #edf2f7;
-      transition: all 0.2s;
-    }
-    
-    .stat-card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      transform: translateY(-2px);
-    }
-    
-    .stat-card .label {
-      font-size: 12px;
-      color: #718096;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-weight: 600;
-    }
-    
-    .stat-card .number {
-      font-size: 28px;
-      font-weight: 700;
-      margin-top: 6px;
-      letter-spacing: -0.5px;
-    }
-    
-    .stat-total .number { color: #4f46e5; }
-    .stat-today .number { color: #059669; }
-    .stat-pending .number { color: #d97706; }
-    .stat-confirmed .number { color: #059669; }
-    .stat-completed .number { color: #2563eb; }
-    .stat-cancelled .number { color: #dc2626; }
-    
-    /* ===== TABLE ===== */
-    .table-container {
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid #edf2f7;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      overflow: hidden;
-    }
-    
-    .table-header {
-      padding: 16px 20px;
-      border-bottom: 1px solid #edf2f7;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    
-    .table-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    
-    .table-controls {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    
-    .search-box {
-      padding: 8px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 13px;
-      width: 220px;
-      transition: all 0.2s;
-      background: #f7fafc;
-    }
-    
-    .search-box:focus {
-      outline: none;
-      border-color: #f97316;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
-    }
-    
-    .btn-refresh {
-      padding: 8px 16px;
-      background: #f97316;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .btn-refresh:hover {
-      background: #ea580c;
-    }
-    
-    /* ===== TABLE ===== */
-    .table-wrapper {
-      overflow-x: auto;
-      padding: 0;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    
-    thead {
-      background: #f7fafc;
-    }
-    
-    th {
-      padding: 12px 16px;
-      text-align: left;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #718096;
-      font-weight: 600;
-      border-bottom: 1px solid #edf2f7;
-    }
-    
-    td {
-      padding: 12px 16px;
-      border-bottom: 1px solid #f7fafc;
-      vertical-align: middle;
-    }
-    
-    tr:hover td {
-      background: #fafbfc;
-    }
-    
-    .patient-name {
-      font-weight: 600;
-      color: #1a202c;
-    }
-    
-    .contact-info {
-      font-size: 13px;
-      color: #718096;
-      line-height: 1.4;
-    }
-    
-    .appointment-date {
-      font-weight: 500;
-    }
-    
-    .appointment-time {
-      font-size: 12px;
-      color: #718096;
-    }
-    
-    /* ===== STATUS BADGE ===== */
-    .badge {
-      display: inline-block;
-      padding: 3px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-    
-    .badge-pending {
-      background: #fef3c7;
-      color: #92400e;
-    }
-    
-    .badge-confirmed {
-      background: #d1fae5;
-      color: #065f46;
-    }
-    
-    .badge-completed {
-      background: #dbeafe;
-      color: #1e40af;
-    }
-    
-    .badge-cancelled {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-    
-    /* ===== STATUS SELECT ===== */
-    .status-select {
-      padding: 4px 10px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      background: #fff;
-      transition: all 0.2s;
-    }
-    
-    .status-select:focus {
-      outline: none;
-      border-color: #f97316;
-    }
-    
-    /* ===== BUTTONS ===== */
-    .btn {
-      padding: 5px 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-weight: 500;
-    }
-    
-    .btn-view {
-      background: #e0f2fe;
-      color: #0369a1;
-    }
-    
-    .btn-view:hover {
-      background: #bae6fd;
-    }
-    
-    .btn-delete {
-      background: #fee2e2;
-      color: #991b1b;
-      margin-left: 4px;
-    }
-    
-    .btn-delete:hover {
-      background: #fecaca;
-    }
-    
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      text-align: center;
-      padding: 48px 20px;
-      color: #718096;
-    }
-    
-    .empty-state p {
-      font-size: 15px;
-    }
-    
-    /* ===== LOADING ===== */
-    .loader {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #f97316;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      animation: spin 0.8s linear infinite;
-      margin: 40px auto;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    /* ===== MODAL ===== */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.45);
-      z-index: 2000;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(4px);
-    }
-    
-    .modal-overlay.active {
-      display: flex;
-    }
-    
-    .modal {
-      background: #fff;
-      border-radius: 16px;
-      max-width: 580px;
-      width: 92%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 28px 32px 32px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
-    
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #edf2f7;
-      margin-bottom: 20px;
-    }
-    
-    .modal-header h2 {
-      font-size: 20px;
-      font-weight: 700;
-    }
-    
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      color: #718096;
-      line-height: 1;
-      padding: 0 4px;
-    }
-    
-    .modal-close:hover {
-      color: #1a202c;
-    }
-    
-    .detail-row {
-      display: flex;
-      padding: 8px 0;
-      border-bottom: 1px solid #f7fafc;
-    }
-    
-    .detail-label {
-      width: 130px;
-      font-weight: 500;
-      color: #718096;
-      font-size: 13px;
-      flex-shrink: 0;
-    }
-    
-    .detail-value {
-      flex: 1;
-      color: #1a202c;
-      font-size: 14px;
-    }
-    
-    .detail-value strong {
-      font-weight: 600;
-    }
-    
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
-      .stats-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-      
-      .sidebar.open {
-        transform: translateX(0);
-      }
-      
-      .main-content {
-        margin-left: 0;
-        padding: 16px;
-      }
-      
-      .hamburger {
-        display: block;
-      }
-      
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-      
-      .stat-card .number {
-        font-size: 22px;
-      }
-      
-      .page-header h1 {
-        font-size: 20px;
-      }
-      
-      .table-header {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      
-      .search-box {
-        width: 100%;
-      }
-      
-      .table-controls {
-        flex-direction: column;
-        width: 100%;
-      }
-      
-      .table-controls .btn-refresh {
-        width: 100%;
-      }
-      
-      .detail-row {
-        flex-direction: column;
-        padding: 10px 0;
-      }
-      
-      .detail-label {
-        width: 100%;
-        margin-bottom: 2px;
-        font-size: 12px;
-      }
-      
-      .modal {
-        padding: 20px;
-        width: 95%;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .stats-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      
-      .stat-card {
-        padding: 12px 14px;
-      }
-      
-      .stat-card .number {
-        font-size: 18px;
-      }
-      
-      .stat-card .label {
-        font-size: 10px;
-      }
-      
-      th, td {
-        padding: 8px 10px;
-        font-size: 12px;
-      }
-      
-      .btn {
-        font-size: 11px;
-        padding: 4px 8px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+  /* ============================================================
+     TOKENS
+     A single neutral palette. No hue anywhere except pure grays
+     and near-black. One serif accent for organisation identity,
+     everything else a quiet system sans.
+     ============================================================ */
+  :root{
+    --bg:            #f7f7f8;
+    --surface:       #ffffff;
+    --border:        #e4e4e7;
+    --border-strong: #d4d4d8;
+    --ink:           #18181b;
+    --ink-soft:      #52525b;
+    --ink-faint:     #a1a1aa;
+    --hairline:      #ececee;
+    --shadow:        0 1px 2px rgba(24,24,27,0.04), 0 8px 24px rgba(24,24,27,0.05);
+    --radius:        10px;
+    --sans:          -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  body{
+    font-family:var(--sans);
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ============================================================
+     LOGIN
+     ============================================================ */
+  .login-overlay{
+    position:fixed; inset:0;
+    background:var(--bg);
+    z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    transition:opacity .4s ease, visibility .4s ease;
+  }
+  .login-overlay.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+
+  .login-card{
+    width:100%; max-width:400px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+
+  .org-switch{
+    display:flex;
+    border-bottom:1px solid var(--border);
+  }
+  .org-tab{
+    flex:1;
+    padding:16px 12px;
+    text-align:center;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--ink-faint);
+    background:var(--bg);
+    border:none;
+    cursor:pointer;
+    transition:color .15s ease, background .15s ease;
+    position:relative;
+  }
+  .org-tab.active{
+    color:var(--ink);
+    background:var(--surface);
+  }
+  .org-tab.active::after{
+    content:'';
+    position:absolute; left:0; right:0; bottom:-1px;
+    height:2px; background:var(--ink);
+  }
+  .org-tab:not(.active):hover{ color:var(--ink-soft); }
+
+  .login-body{ padding:32px 30px 28px; }
+
+  .login-eyebrow{
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .login-heading{
+    font-size:22px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:2px;
+  }
+  .login-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:24px;
+  }
+
+  .form-group{ margin-bottom:16px; }
+  .form-group label{
+    display:block;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    letter-spacing:.01em;
+  }
+  .form-group input{
+    width:100%;
+    padding:11px 13px;
+    border:1px solid var(--border-strong);
+    border-radius:7px;
+    font-size:14px;
+    background:var(--bg);
+    color:var(--ink);
+    transition:border-color .15s ease, background .15s ease;
+    font-family:var(--sans);
+  }
+  .form-group input:focus{
+    outline:none;
+    border-color:var(--ink);
+    background:var(--surface);
+  }
+  .error-msg{
+    font-size:11.5px;
+    color:#7a1f1f;
+    margin-top:5px;
+    display:none;
+  }
+  .error-msg.show{ display:block; }
+
+  .btn-login{
+    width:100%;
+    padding:11px;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    border-radius:7px;
+    font-size:13.5px;
+    font-weight:600;
+    letter-spacing:.01em;
+    cursor:pointer;
+    transition:background .15s ease;
+    margin-top:4px;
+  }
+  .btn-login:hover{ background:#000; }
+  .btn-login:disabled{ opacity:.5; cursor:not-allowed; }
+
+  .login-footnote{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid var(--hairline);
+  }
+  .login-footnote code{
+    background:var(--bg);
+    border:1px solid var(--hairline);
+    padding:1px 6px;
+    border-radius:4px;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  .login-status{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--ink);
+    font-weight:600;
+    margin-top:14px;
+    display:none;
+  }
+  .login-status.show{ display:block; }
+
+  /* ============================================================
+     DASHBOARD SHELL
+     ============================================================ */
+  .dashboard{ display:none; }
+  .dashboard.active{ display:block; }
+
+  .top-header{
+    background:var(--surface);
+    padding:16px 32px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:100;
+  }
+  .top-header .brand{ display:flex; align-items:baseline; gap:10px; }
+  .top-header .brand h1{
+    font-size:18px;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .top-header .brand .tag{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    border-left:1px solid var(--border-strong);
+    padding-left:10px;
+  }
+
+  .header-right{ display:flex; align-items:center; gap:14px; font-size:12.5px; color:var(--ink-faint); }
+
+  .btn-logout, .btn-refresh{
+    padding:7px 16px;
+    border:1px solid var(--border-strong);
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .15s ease;
+    background:var(--surface);
+    color:var(--ink);
+  }
+  .btn-refresh:hover{ background:var(--bg); }
+  .btn-logout{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .btn-logout:hover{ background:#000; }
+
+  /* ============================================================
+     MAIN / PANEL
+     ============================================================ */
+  .main-container{
+    max-width:1280px;
+    margin:0 auto;
+    padding:28px 32px 48px;
+  }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+
+  .panel-header{
+    padding:20px 26px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .panel-title{ font-size:16px; font-weight:600; color:var(--ink); }
+  .panel-title .sub{ font-weight:400; font-size:13px; color:var(--ink-soft); margin-left:8px; }
+  .panel-badge{
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--ink-soft);
+    background:var(--bg);
+    border:1px solid var(--border);
+    padding:3px 12px;
+    border-radius:20px;
+  }
+
+  .panel-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--hairline);
+  }
+  .stat-item{ background:var(--surface); padding:16px 18px; text-align:center; }
+  .stat-item .number{ font-size:24px; font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .stat-item .label{ font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.06em; margin-top:3px; font-weight:600; }
+
+  .panel-controls{
+    padding:14px 26px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .search-box{
+    padding:8px 13px;
+    border:1px solid var(--border-strong);
+    border-radius:6px;
+    font-size:13px;
+    flex:1;
+    min-width:180px;
+    background:var(--bg);
+    color:var(--ink);
+    transition:all .15s ease;
+    font-family:var(--sans);
+  }
+  .search-box:focus{ outline:none; border-color:var(--ink); background:var(--surface); }
+  .filter-select{
+    padding:8px 13px;
+    border:1px solid var(--border-strong);
+    border-radius:6px;
+    font-size:13px;
+    background:var(--bg);
+    color:var(--ink);
+    cursor:pointer;
+    font-family:var(--sans);
+  }
+  .filter-select:focus{ outline:none; border-color:var(--ink); }
+
+  /* ============================================================
+     TABLE
+     ============================================================ */
+  .table-wrapper{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  thead{ background:var(--bg); }
+  th{
+    padding:11px 18px;
+    text-align:left;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-faint);
+    font-weight:700;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  td{ padding:12px 18px; border-bottom:1px solid var(--hairline); vertical-align:middle; color:var(--ink); }
+  tr:hover td{ background:var(--bg); }
+  .name-cell{ font-weight:600; }
+  .info-cell{ font-size:12px; color:var(--ink-soft); line-height:1.5; }
+
+  /* Status shown as plain text with a dot, not a colored pill -
+     keeps everything monochrome while still scannable. */
+  .status-dot{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11.5px; font-weight:600; color:var(--ink-soft);
+    text-transform:capitalize;
+  }
+  .status-dot::before{
+    content:'';
+    width:6px; height:6px; border-radius:50%;
+    background:var(--ink-faint);
+    flex-shrink:0;
+  }
+  .status-dot.is-open::before{ background:var(--ink); }
+  .status-dot.is-open{ color:var(--ink); }
+
+  .status-select{
+    padding:5px 9px;
+    border:1px solid var(--border-strong);
+    border-radius:5px;
+    font-size:12px;
+    cursor:pointer;
+    background:var(--surface);
+    color:var(--ink);
+    font-family:var(--sans);
+  }
+  .status-select:focus{ outline:none; border-color:var(--ink); }
+
+  .btn{
+    padding:5px 13px;
+    border:1px solid var(--border-strong);
+    border-radius:5px;
+    font-size:11.5px;
+    cursor:pointer;
+    transition:all .15s ease;
+    font-weight:600;
+    background:var(--surface);
+    color:var(--ink);
+  }
+  .btn-view:hover{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .btn-delete{ margin-left:5px; color:var(--ink-soft); }
+  .btn-delete:hover{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+  .empty-state{ text-align:center; padding:56px 20px; color:var(--ink-faint); }
+  .empty-state .empty-icon{ font-size:15px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .empty-state p{ font-size:13.5px; color:var(--ink-soft); }
+
+  .loader{
+    border:2px solid var(--hairline);
+    border-top:2px solid var(--ink);
+    border-radius:50%;
+    width:26px; height:26px;
+    animation:spin .8s linear infinite;
+    margin:36px auto;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ============================================================
+     MODAL
+     ============================================================ */
+  .modal-overlay{
+    display:none; position:fixed; inset:0;
+    background:rgba(24,24,27,.45);
+    z-index:1000;
+    justify-content:center; align-items:center;
+    padding:20px;
+  }
+  .modal-overlay.active{ display:flex; }
+  .modal{
+    background:var(--surface);
+    border-radius:var(--radius);
+    max-width:520px; width:100%;
+    max-height:82vh; overflow-y:auto;
+    padding:26px 28px 30px;
+    box-shadow:0 24px 64px rgba(0,0,0,.18);
+  }
+  .modal-header{
+    display:flex; justify-content:space-between; align-items:center;
+    padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:16px;
+  }
+  .modal-header h2{ font-size:17px; font-weight:700; color:var(--ink); }
+  .modal-close{
+    background:none; border:none; font-size:22px; cursor:pointer;
+    color:var(--ink-faint); padding:0 4px; line-height:1;
+  }
+  .modal-close:hover{ color:var(--ink); }
+
+  .detail-row{ display:flex; padding:8px 0; border-bottom:1px solid var(--hairline); }
+  .detail-label{ width:130px; font-weight:600; color:var(--ink-faint); font-size:11.5px; text-transform:uppercase; letter-spacing:.03em; flex-shrink:0; padding-top:1px; }
+  .detail-value{ flex:1; color:var(--ink); font-size:13.5px; }
+  .detail-value strong{ font-weight:600; }
+
+  .notes-section{ margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
+  .notes-section h4{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-bottom:8px; }
+  .note-item{ background:var(--bg); border:1px solid var(--hairline); padding:9px 13px; border-radius:6px; margin-bottom:6px; font-size:13px; }
+  .note-item .note-time{ font-size:10.5px; color:var(--ink-faint); margin-top:3px; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width:768px){
+    .top-header{ padding:14px 18px; flex-wrap:wrap; gap:10px; }
+    .main-container{ padding:18px; }
+    .panel-stats{ grid-template-columns:repeat(2,1fr); }
+    .panel-header{ flex-direction:column; align-items:flex-start; gap:6px; padding:16px 18px; }
+    .panel-controls{ flex-direction:column; padding:12px 18px; }
+    .search-box, .filter-select{ width:100%; }
+    th, td{ padding:9px 12px; font-size:12px; }
+    .detail-row{ flex-direction:column; padding:9px 0; }
+    .detail-label{ width:100%; margin-bottom:3px; }
+    .modal{ padding:20px; }
+  }
+  @media (max-width:480px){
+    .panel-stats{ grid-template-columns:1fr 1fr; }
+    .login-body{ padding:26px 20px 24px; }
+  }
+</style>
 </head>
 <body>
 
-<!-- ===== SIDEBAR ===== -->
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-brand">
-    <h2>Leela Hospitals</h2>
-    <p>Administration Panel</p>
+<!-- ===== LOGIN ===== -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+
+    <div class="org-switch">
+      <button type="button" class="org-tab active" id="tabLeela" onclick="switchOrg('leela')">Leela Hospitals</button>
+      <button type="button" class="org-tab" id="tabMediequip" onclick="switchOrg('mediequip')">Dr. Mediequip+</button>
+    </div>
+
+    <div class="login-body">
+      <div class="login-eyebrow">Admin Access</div>
+      <div class="login-heading" id="loginHeading">Leela Hospitals</div>
+      <div class="login-sub" id="loginSub">Sign in to manage appointments</div>
+
+      <form onsubmit="return handleLogin(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" autocomplete="username">
+          <div class="error-msg" id="emailError">Invalid email</div>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" autocomplete="current-password">
+          <div class="error-msg" id="passError">Invalid password</div>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+      </form>
+
+      <div class="login-status" id="loginStatus">Signed in — loading dashboard…</div>
+
+      <div class="login-footnote" id="loginFootnote"></div>
+    </div>
   </div>
-  <ul class="sidebar-menu">
-    <li class="active" onclick="loadDashboard()">Dashboard</li>
-    <li onclick="loadAppointments()">All Appointments</li>
-    <li onclick="loadTodayAppointments()">Today's Appointments</li>
-    <li onclick="loadPendingAppointments()">Pending</li>
-  </ul>
 </div>
 
-<!-- ===== MAIN CONTENT ===== -->
-<div class="main-content">
+<!-- ===== DASHBOARD ===== -->
+<div class="dashboard" id="dashboard">
 
-  <!-- Header -->
-  <div class="page-header">
-    <div>
-      <button class="hamburger" onclick="toggleSidebar()">☰</button>
-      <h1>Admin <span>Dashboard</span></h1>
+  <header class="top-header">
+    <div class="brand">
+      <h1 id="dashOrgName">Admin Dashboard</h1>
+      <span class="tag" id="dashOrgTag">Appointments</span>
     </div>
-    <div style="font-size:13px; color:#718096;" id="lastUpdated">Last updated: just now</div>
-  </div>
+    <div class="header-right">
+      <span id="lastUpdated">Updated: just now</span>
+      <button class="btn-refresh" onclick="refreshActive()">Refresh</button>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
 
-  <!-- Stats -->
-  <div class="stats-grid" id="statsContainer">
-    <div class="stat-card stat-total"><div class="label">Total</div><div class="number">-</div></div>
-    <div class="stat-card stat-today"><div class="label">Today</div><div class="number">-</div></div>
-    <div class="stat-card stat-pending"><div class="label">Pending</div><div class="number">-</div></div>
-    <div class="stat-card stat-confirmed"><div class="label">Confirmed</div><div class="number">-</div></div>
-    <div class="stat-card stat-completed"><div class="label">Completed</div><div class="number">-</div></div>
-    <div class="stat-card stat-cancelled"><div class="label">Cancelled</div><div class="number">-</div></div>
-  </div>
+  <div class="main-container">
 
-  <!-- Table -->
-  <div class="table-container">
-    <div class="table-header">
-      <h3 id="tableTitle">All Appointments</h3>
-      <div class="table-controls">
-        <input type="text" class="search-box" id="searchBox" placeholder="Search patients..." onkeyup="searchAppointments(this.value)">
-        <button class="btn-refresh" onclick="loadAppointments()">Refresh</button>
+    <!-- Leela Hospitals Panel -->
+    <div class="panel" id="leelaPanel" style="display:none;">
+      <div class="panel-header">
+        <div><span class="panel-title">Leela Hospitals</span><span class="sub">Appointments</span></div>
+        <span class="panel-badge" id="leelaCount">0 total</span>
       </div>
-    </div>
-    <div id="tableContent">
-      <div class="loader"></div>
-    </div>
-  </div>
 
+      <div class="panel-stats">
+        <div class="stat-item"><div class="number" id="leelaTotal">–</div><div class="label">Total</div></div>
+        <div class="stat-item"><div class="number" id="leelaPending">–</div><div class="label">Pending</div></div>
+        <div class="stat-item"><div class="number" id="leelaConfirmed">–</div><div class="label">Confirmed</div></div>
+        <div class="stat-item"><div class="number" id="leelaToday">–</div><div class="label">Today</div></div>
+      </div>
+
+      <div class="panel-controls">
+        <input type="text" class="search-box" id="leelaSearch" placeholder="Search appointments…" onkeyup="searchLeela(this.value)">
+        <select class="filter-select" id="leelaFilter" onchange="filterLeela(this.value)">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper" id="leelaTable"><div class="loader"></div></div>
+    </div>
+
+    <!-- Dr. Mediequip+ Panel -->
+    <div class="panel" id="mediequipPanel" style="display:none;">
+      <div class="panel-header">
+        <div><span class="panel-title">Dr. Mediequip+</span><span class="sub">Equipment Inquiries</span></div>
+        <span class="panel-badge" id="mediequipCount">0 total</span>
+      </div>
+
+      <div class="panel-stats">
+        <div class="stat-item"><div class="number" id="mediequipTotal">–</div><div class="label">Total</div></div>
+        <div class="stat-item"><div class="number" id="mediequipNew">–</div><div class="label">New</div></div>
+        <div class="stat-item"><div class="number" id="mediequipContacted">–</div><div class="label">Contacted</div></div>
+        <div class="stat-item"><div class="number" id="mediequipQuoted">–</div><div class="label">Quoted</div></div>
+      </div>
+
+      <div class="panel-controls">
+        <input type="text" class="search-box" id="mediequipSearch" placeholder="Search inquiries…" onkeyup="searchMediequip(this.value)">
+        <select class="filter-select" id="mediequipFilter" onchange="filterMediequip(this.value)">
+          <option value="all">All Status</option>
+          <option value="new">New</option>
+          <option value="contacted">Contacted</option>
+          <option value="quoted">Quoted</option>
+          <option value="follow-up">Follow-up</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper" id="mediequipTable"><div class="loader"></div></div>
+    </div>
+
+  </div>
 </div>
 
 <!-- ===== MODAL ===== -->
 <div class="modal-overlay" id="detailModal">
   <div class="modal">
     <div class="modal-header">
-      <h2>Appointment Details</h2>
+      <h2 id="modalTitle">Details</h2>
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div id="modalBody"></div>
@@ -634,230 +581,382 @@
 </div>
 
 <script>
- const API_URL = 'https://leela-hospital-backend.onrender.com/api';
-  let currentFilter = 'all';
+  const API_URL = window.location.origin + '/api';
 
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
+  // ===== CREDENTIALS =====
+  const ORGS = {
+    leela: {
+      email: 'admin@leelahospitals.com',
+      password: 'admin123',
+      heading: 'Leela Hospitals',
+      sub: 'Sign in to manage appointments',
+      dashName: 'Leela Hospitals',
+      dashTag: 'Appointments',
+      panelId: 'leelaPanel'
+    },
+    mediequip: {
+      email: 'admin@drmediequip.com',
+      password: 'admin123',
+      heading: 'Dr. Mediequip+',
+      sub: 'Sign in to manage equipment inquiries',
+      dashName: 'Dr. Mediequip+',
+      dashTag: 'Equipment Inquiries',
+      panelId: 'mediequipPanel'
+    }
+  };
+
+  let activeTab = 'leela';   // which login tab is showing
+  let currentOrg = null;     // which org is actually logged in
+
+  // ===== STATE =====
+  let leelaData = [], leelaFiltered = [];
+  let mediequipData = [], mediequipFiltered = [];
+
+  // ===== LOGIN TAB SWITCH =====
+  function switchOrg(org){
+    activeTab = org;
+    document.getElementById('tabLeela').classList.toggle('active', org === 'leela');
+    document.getElementById('tabMediequip').classList.toggle('active', org === 'mediequip');
+
+    const cfg = ORGS[org];
+    document.getElementById('loginHeading').textContent = cfg.heading;
+    document.getElementById('loginSub').textContent = cfg.sub;
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('emailError').classList.remove('show');
+    document.getElementById('passError').classList.remove('show');
+    document.getElementById('loginStatus').classList.remove('show');
+    document.getElementById('loginBtn').disabled = false;
+    document.getElementById('loginBtn').textContent = 'Sign In';
   }
 
-  function updateTime() {
-    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+  // ===== LOGIN =====
+  function handleLogin(e){
+    e.preventDefault();
+    const cfg = ORGS[activeTab];
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    let valid = true;
+
+    document.getElementById('emailError').classList.remove('show');
+    document.getElementById('passError').classList.remove('show');
+
+    if (email !== cfg.email){
+      document.getElementById('emailError').textContent = 'Invalid email';
+      document.getElementById('emailError').classList.add('show');
+      valid = false;
+    }
+    if (password !== cfg.password){
+      document.getElementById('passError').textContent = 'Invalid password';
+      document.getElementById('passError').classList.add('show');
+      valid = false;
+    }
+
+    if (!valid) return false;
+
+    currentOrg = activeTab;
+    document.getElementById('loginBtn').disabled = true;
+    document.getElementById('loginBtn').textContent = 'Signed In';
+    document.getElementById('loginStatus').classList.add('show');
+
+    setTimeout(enterDashboard, 350);
+    return false;
   }
 
-  // ===== DASHBOARD =====
-  async function loadDashboard() {
-    currentFilter = 'all';
-    document.getElementById('tableTitle').textContent = 'All Appointments';
-    await loadStats();
-    await loadAppointments();
+  document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); handleLogin(e); } });
+  document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); handleLogin(e); } });
+
+  function enterDashboard(){
+    const cfg = ORGS[currentOrg];
+
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('active');
+
+    document.getElementById('dashOrgName').textContent = cfg.dashName;
+    document.getElementById('dashOrgTag').textContent = cfg.dashTag;
+
+    // show only the relevant panel
+    document.getElementById('leelaPanel').style.display = currentOrg === 'leela' ? 'block' : 'none';
+    document.getElementById('mediequipPanel').style.display = currentOrg === 'mediequip' ? 'block' : 'none';
+
+    refreshActive();
+  }
+
+  // ===== LOGOUT =====
+  function logout(){
+    currentOrg = null;
+    document.getElementById('dashboard').classList.remove('active');
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    switchOrg(activeTab);
+  }
+
+  // ===== TIME =====
+  function updateTime(){
+    document.getElementById('lastUpdated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+  }
+
+  // ===== REFRESH (only the logged-in org) =====
+  async function refreshActive(){
+    if (currentOrg === 'leela') await loadLeelaData();
+    if (currentOrg === 'mediequip') await loadMediequipData();
     updateTime();
   }
 
-  // ===== STATS =====
-  async function loadStats() {
-    try {
-      const res = await fetch(API_URL + '/stats');
+  // ===== LEELA: LOAD =====
+  async function loadLeelaData(){
+    try{
+      const res = await fetch(API_URL + '/appointments');
       const data = await res.json();
-      if (data.success) {
-        const s = data.stats;
-        document.querySelector('.stat-total .number').textContent = s.total || 0;
-        document.querySelector('.stat-today .number').textContent = s.today || 0;
-        document.querySelector('.stat-pending .number').textContent = s.pending || 0;
-        document.querySelector('.stat-confirmed .number').textContent = s.confirmed || 0;
-        document.querySelector('.stat-completed .number').textContent = s.completed || 0;
-        document.querySelector('.stat-cancelled .number').textContent = s.cancelled || 0;
+      if (data.success){
+        leelaData = data.appointments || [];
+        leelaFiltered = [...leelaData];
+        renderLeelaStats();
+        renderLeelaTable();
       }
-    } catch (e) {
-      console.error('Stats error:', e);
+    }catch(e){
+      document.getElementById('leelaTable').innerHTML = '<div class="empty-state"><div class="empty-icon">Error</div><p>Could not load appointment data</p></div>';
     }
   }
 
-  // ===== LOAD APPOINTMENTS =====
-  async function loadAppointments() {
-    currentFilter = 'all';
-    document.getElementById('tableTitle').textContent = 'All Appointments';
-    try {
-      const res = await fetch(API_URL + '/appointments');
-      const data = await res.json();
-      if (data.success) renderTable(data.appointments);
-    } catch (e) {
-      document.getElementById('tableContent').innerHTML = 
-        '<div class="empty-state"><p style="color:#dc2626;">Error loading data. Make sure backend is running.</p></div>';
-    }
-    updateTime();
+  function renderLeelaStats(){
+    const total = leelaData.length;
+    const pending = leelaData.filter(a => a.status === 'pending').length;
+    const confirmed = leelaData.filter(a => a.status === 'confirmed').length;
+    const today = leelaData.filter(a => new Date(a.appointmentDate).toDateString() === new Date().toDateString()).length;
+
+    document.getElementById('leelaTotal').textContent = total;
+    document.getElementById('leelaPending').textContent = pending;
+    document.getElementById('leelaConfirmed').textContent = confirmed;
+    document.getElementById('leelaToday').textContent = today;
+    document.getElementById('leelaCount').textContent = total + ' total';
   }
 
-  async function loadTodayAppointments() {
-    currentFilter = 'today';
-    document.getElementById('tableTitle').textContent = "Today's Appointments";
-    try {
-      const res = await fetch(API_URL + '/appointments');
-      const data = await res.json();
-      if (data.success) {
-        const today = new Date().toDateString();
-        const filtered = data.appointments.filter(a => new Date(a.appointmentDate).toDateString() === today);
-        renderTable(filtered);
-      }
-    } catch (e) { console.error(e); }
-    updateTime();
-  }
-
-  async function loadPendingAppointments() {
-    currentFilter = 'pending';
-    document.getElementById('tableTitle').textContent = 'Pending Appointments';
-    try {
-      const res = await fetch(API_URL + '/appointments');
-      const data = await res.json();
-      if (data.success) {
-        const filtered = data.appointments.filter(a => a.status === 'pending');
-        renderTable(filtered);
-      }
-    } catch (e) { console.error(e); }
-    updateTime();
-  }
-
-  // ===== SEARCH =====
-  async function searchAppointments(query) {
-    if (!query || query.length < 2) { loadAppointments(); return; }
-    try {
-      const res = await fetch(API_URL + '/search?q=' + query);
-      const data = await res.json();
-      if (data.success) renderTable(data.appointments);
-    } catch (e) { console.error(e); }
-  }
-
-  // ===== RENDER TABLE =====
-  function renderTable(appointments) {
-    if (!appointments || appointments.length === 0) {
-      document.getElementById('tableContent').innerHTML = 
-        '<div class="empty-state"><p>No appointments found</p></div>';
+  function renderLeelaTable(){
+    if (!leelaFiltered || leelaFiltered.length === 0){
+      document.getElementById('leelaTable').innerHTML = '<div class="empty-state"><div class="empty-icon">No Records</div><p>No appointments found</p></div>';
       return;
     }
 
-    let html = '<div class="table-wrapper"><table><thead><tr>' +
-      '<th>Patient</th><th>Contact</th><th>Department</th><th>Doctor</th><th>Date & Time</th><th>Status</th><th>Actions</th>' +
-      '</tr></thead><tbody>';
+    let html = `<table><thead><tr>
+      <th>Patient</th><th>Contact</th><th>Department</th><th>Doctor</th><th>Date &amp; Time</th><th>Status</th><th>Actions</th>
+    </tr></thead><tbody>`;
 
-    appointments.forEach(a => {
-      const statusClass = {
-        'pending': 'badge-pending',
-        'confirmed': 'badge-confirmed',
-        'completed': 'badge-completed',
-        'cancelled': 'badge-cancelled'
-      }[a.status] || 'badge-pending';
-
+    leelaFiltered.forEach(a => {
+      const isOpen = a.status === 'pending' || a.status === 'confirmed';
       html += `
         <tr>
-          <td><span class="patient-name">${a.firstName} ${a.lastName}</span></td>
-          <td><div class="contact-info">${a.email}<br>${a.phone}</div></td>
+          <td><span class="name-cell">${a.firstName} ${a.lastName}</span></td>
+          <td><div class="info-cell">${a.email}<br>${a.phone}</div></td>
           <td>${a.department}</td>
           <td>${a.doctor}</td>
-          <td><div class="appointment-date">${new Date(a.appointmentDate).toLocaleDateString()}</div><div class="appointment-time">${a.appointmentTime}</div></td>
+          <td><div>${new Date(a.appointmentDate).toLocaleDateString()}</div><div style="font-size:12px;color:var(--ink-faint);">${a.appointmentTime}</div></td>
           <td>
-            <select class="status-select" onchange="updateStatus('${a._id}', this.value)">
+            <select class="status-select" onchange="updateLeelaStatus('${a._id}', this.value)">
               <option value="pending" ${a.status==='pending'?'selected':''}>Pending</option>
               <option value="confirmed" ${a.status==='confirmed'?'selected':''}>Confirmed</option>
               <option value="completed" ${a.status==='completed'?'selected':''}>Completed</option>
               <option value="cancelled" ${a.status==='cancelled'?'selected':''}>Cancelled</option>
             </select>
-            <br><span class="badge ${statusClass}" style="margin-top:4px;display:inline-block;">${a.status}</span>
+            <div class="status-dot ${isOpen?'is-open':''}" style="margin-top:5px;">${a.status}</div>
           </td>
           <td>
-            <button class="btn btn-view" onclick="viewDetails('${a._id}')">View</button>
-            <button class="btn btn-delete" onclick="deleteAppointment('${a._id}')">Delete</button>
+            <button class="btn btn-view" onclick="viewLeela('${a._id}')">View</button>
+            <button class="btn btn-delete" onclick="deleteLeela('${a._id}')">Delete</button>
           </td>
-        </tr>
-      `;
+        </tr>`;
     });
 
-    html += '</tbody></table></div>';
-    document.getElementById('tableContent').innerHTML = html;
+    html += '</tbody></table>';
+    document.getElementById('leelaTable').innerHTML = html;
   }
 
-  // ===== UPDATE STATUS =====
-  async function updateStatus(id, status) {
-    try {
-      await fetch(API_URL + '/appointments/' + id, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
-      await loadStats();
-      if (currentFilter === 'all') loadAppointments();
-      else if (currentFilter === 'today') loadTodayAppointments();
-      else if (currentFilter === 'pending') loadPendingAppointments();
-    } catch (e) {
-      alert('Error updating status');
-    }
+  function searchLeela(query){
+    leelaFiltered = (!query || query.length < 2) ? [...leelaData] : leelaData.filter(a => {
+      const str = (a.firstName+' '+a.lastName+' '+a.email+' '+a.phone+' '+a.department+' '+a.doctor).toLowerCase();
+      return str.includes(query.toLowerCase());
+    });
+    renderLeelaTable();
   }
 
-  // ===== DELETE =====
-  async function deleteAppointment(id) {
+  function filterLeela(value){
+    leelaFiltered = value === 'all' ? [...leelaData] : leelaData.filter(a => a.status === value);
+    renderLeelaTable();
+  }
+
+  async function updateLeelaStatus(id, status){
+    try{
+      await fetch(API_URL + '/appointments/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status }) });
+      await loadLeelaData();
+    }catch(e){ alert('Error updating status'); }
+  }
+
+  async function deleteLeela(id){
     if (!confirm('Delete this appointment?')) return;
-    try {
-      await fetch(API_URL + '/appointments/' + id, { method: 'DELETE' });
-      await loadStats();
-      if (currentFilter === 'all') loadAppointments();
-      else if (currentFilter === 'today') loadTodayAppointments();
-      else if (currentFilter === 'pending') loadPendingAppointments();
-    } catch (e) {
-      alert('Error deleting');
-    }
+    try{
+      await fetch(API_URL + '/appointments/' + id, { method:'DELETE' });
+      await loadLeelaData();
+    }catch(e){ alert('Error deleting'); }
   }
 
-  // ===== VIEW DETAILS =====
-  async function viewDetails(id) {
-    try {
+  async function viewLeela(id){
+    try{
       const res = await fetch(API_URL + '/appointments/' + id);
       const data = await res.json();
-      if (data.success) {
+      if (data.success){
         const a = data.appointment;
+        document.getElementById('modalTitle').textContent = 'Appointment Details';
         document.getElementById('modalBody').innerHTML = `
           <div class="detail-row"><div class="detail-label">Full Name</div><div class="detail-value"><strong>${a.firstName} ${a.lastName}</strong></div></div>
           <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value">${a.email}</div></div>
           <div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value">${a.phone}</div></div>
-          <div class="detail-row"><div class="detail-label">Date of Birth</div><div class="detail-value">${a.dateOfBirth ? new Date(a.dateOfBirth).toLocaleDateString() : 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">Gender</div><div class="detail-value">${a.gender || 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">Address</div><div class="detail-value">${a.address || 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">City</div><div class="detail-value">${a.city || 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">State</div><div class="detail-value">${a.state || 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">Zip Code</div><div class="detail-value">${a.zipCode || 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">Emergency Contact</div><div class="detail-value">${a.emergencyContact || 'N/A'} ${a.emergencyPhone ? '('+a.emergencyPhone+')' : ''}</div></div>
           <div class="detail-row"><div class="detail-label">Department</div><div class="detail-value">${a.department}</div></div>
           <div class="detail-row"><div class="detail-label">Doctor</div><div class="detail-value">${a.doctor}</div></div>
           <div class="detail-row"><div class="detail-label">Appointment</div><div class="detail-value">${new Date(a.appointmentDate).toLocaleDateString()} at ${a.appointmentTime}</div></div>
           <div class="detail-row"><div class="detail-label">Reason</div><div class="detail-value">${a.reason}</div></div>
-          <div class="detail-row"><div class="detail-label">Symptoms</div><div class="detail-value">${a.symptoms || 'N/A'}</div></div>
-          <div class="detail-row"><div class="detail-label">Insurance</div><div class="detail-value">${a.insuranceProvider || 'N/A'} ${a.insuranceId ? '(ID: '+a.insuranceId+')' : ''}</div></div>
-          <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value"><span class="badge ${a.status==='pending'?'badge-pending':a.status==='confirmed'?'badge-confirmed':a.status==='completed'?'badge-completed':'badge-cancelled'}">${a.status.toUpperCase()}</span></div></div>
-          <div class="detail-row"><div class="detail-label">Booked On</div><div class="detail-value">${new Date(a.createdAt).toLocaleString()}</div></div>
-        `;
+          <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value" style="text-transform:capitalize;">${a.status}</div></div>
+          <div class="detail-row"><div class="detail-label">Booked On</div><div class="detail-value">${new Date(a.createdAt).toLocaleString()}</div></div>`;
         document.getElementById('detailModal').classList.add('active');
       }
-    } catch (e) {
-      alert('Error loading details');
+    }catch(e){ alert('Error loading details'); }
+  }
+
+  // ===== MEDIEQUIP: LOAD =====
+  async function loadMediequipData(){
+    try{
+      const res = await fetch(API_URL + '/inquiries');
+      const data = await res.json();
+      if (data.success){
+        mediequipData = data.inquiries || [];
+        mediequipFiltered = [...mediequipData];
+        renderMediequipStats();
+        renderMediequipTable();
+      }
+    }catch(e){
+      document.getElementById('mediequipTable').innerHTML = '<div class="empty-state"><div class="empty-icon">Error</div><p>Could not load inquiry data</p></div>';
     }
   }
 
-  function closeModal() {
-    document.getElementById('detailModal').classList.remove('active');
+  function renderMediequipStats(){
+    const total = mediequipData.length;
+    const newInq = mediequipData.filter(i => i.status === 'new').length;
+    const contacted = mediequipData.filter(i => i.status === 'contacted').length;
+    const quoted = mediequipData.filter(i => i.status === 'quoted').length;
+
+    document.getElementById('mediequipTotal').textContent = total;
+    document.getElementById('mediequipNew').textContent = newInq;
+    document.getElementById('mediequipContacted').textContent = contacted;
+    document.getElementById('mediequipQuoted').textContent = quoted;
+    document.getElementById('mediequipCount').textContent = total + ' total';
   }
 
-  document.getElementById('detailModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
+  function renderMediequipTable(){
+    if (!mediequipFiltered || mediequipFiltered.length === 0){
+      document.getElementById('mediequipTable').innerHTML = '<div class="empty-state"><div class="empty-icon">No Records</div><p>No inquiries found</p></div>';
+      return;
+    }
 
-  // Auto-refresh every 30 seconds
+    let html = `<table><thead><tr>
+      <th>Name</th><th>Hospital</th><th>Equipment</th><th>Urgency</th><th>Budget</th><th>Status</th><th>Actions</th>
+    </tr></thead><tbody>`;
+
+    mediequipFiltered.forEach(i => {
+      const isOpen = i.status === 'new' || i.status === 'contacted' || i.status === 'quoted' || i.status === 'follow-up';
+      html += `
+        <tr>
+          <td><span class="name-cell">${i.name}</span></td>
+          <td><div class="info-cell">${i.hospitalName}<br>${i.email}</div></td>
+          <td>${i.specificEquipment || i.categories?.join(', ') || 'N/A'}</td>
+          <td>${i.urgency || 'N/A'}</td>
+          <td>${i.budget || 'N/A'}</td>
+          <td>
+            <select class="status-select" onchange="updateMediequipStatus('${i._id}', this.value)">
+              <option value="new" ${i.status==='new'?'selected':''}>New</option>
+              <option value="contacted" ${i.status==='contacted'?'selected':''}>Contacted</option>
+              <option value="quoted" ${i.status==='quoted'?'selected':''}>Quoted</option>
+              <option value="follow-up" ${i.status==='follow-up'?'selected':''}>Follow-up</option>
+              <option value="closed" ${i.status==='closed'?'selected':''}>Closed</option>
+            </select>
+            <div class="status-dot ${isOpen?'is-open':''}" style="margin-top:5px;">${i.status}</div>
+          </td>
+          <td>
+            <button class="btn btn-view" onclick="viewMediequip('${i._id}')">View</button>
+            <button class="btn btn-delete" onclick="deleteMediequip('${i._id}')">Delete</button>
+          </td>
+        </tr>`;
+    });
+
+    html += '</tbody></table>';
+    document.getElementById('mediequipTable').innerHTML = html;
+  }
+
+  function searchMediequip(query){
+    mediequipFiltered = (!query || query.length < 2) ? [...mediequipData] : mediequipData.filter(i => {
+      const str = (i.name+' '+i.hospitalName+' '+i.email+' '+i.specificEquipment+' '+(i.categories?.join(' ')||'')).toLowerCase();
+      return str.includes(query.toLowerCase());
+    });
+    renderMediequipTable();
+  }
+
+  function filterMediequip(value){
+    mediequipFiltered = value === 'all' ? [...mediequipData] : mediequipData.filter(i => i.status === value);
+    renderMediequipTable();
+  }
+
+  async function updateMediequipStatus(id, status){
+    try{
+      await fetch(API_URL + '/inquiries/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ status }) });
+      await loadMediequipData();
+    }catch(e){ alert('Error updating status'); }
+  }
+
+  async function deleteMediequip(id){
+    if (!confirm('Delete this inquiry?')) return;
+    try{
+      await fetch(API_URL + '/inquiries/' + id, { method:'DELETE' });
+      await loadMediequipData();
+    }catch(e){ alert('Error deleting'); }
+  }
+
+  async function viewMediequip(id){
+    try{
+      const res = await fetch(API_URL + '/inquiries/' + id);
+      const data = await res.json();
+      if (data.success){
+        const i = data.inquiry;
+        document.getElementById('modalTitle').textContent = 'Inquiry Details';
+        let notesHtml = '';
+        if (i.notes && i.notes.length > 0){
+          notesHtml = `<div class="notes-section"><h4>Notes</h4>${i.notes.map(n => `
+            <div class="note-item">${n.text}<div class="note-time">${new Date(n.createdAt).toLocaleString()}</div></div>`).join('')}</div>`;
+        }
+        document.getElementById('modalBody').innerHTML = `
+          <div class="detail-row"><div class="detail-label">Name</div><div class="detail-value"><strong>${i.name}</strong></div></div>
+          <div class="detail-row"><div class="detail-label">Email</div><div class="detail-value">${i.email}</div></div>
+          <div class="detail-row"><div class="detail-label">Phone</div><div class="detail-value">${i.phone}</div></div>
+          <div class="detail-row"><div class="detail-label">Hospital</div><div class="detail-value">${i.hospitalName}</div></div>
+          <div class="detail-row"><div class="detail-label">Equipment</div><div class="detail-value">${i.specificEquipment || i.categories?.join(', ') || 'N/A'}</div></div>
+          <div class="detail-row"><div class="detail-label">Urgency</div><div class="detail-value">${i.urgency}</div></div>
+          <div class="detail-row"><div class="detail-label">Budget</div><div class="detail-value">${i.budget}</div></div>
+          <div class="detail-row"><div class="detail-label">Message</div><div class="detail-value">${i.message || 'N/A'}</div></div>
+          <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value" style="text-transform:capitalize;">${i.status}</div></div>
+          <div class="detail-row"><div class="detail-label">Submitted</div><div class="detail-value">${new Date(i.createdAt).toLocaleString()}</div></div>
+          ${notesHtml}`;
+        document.getElementById('detailModal').classList.add('active');
+      }
+    }catch(e){ alert('Error loading details'); }
+  }
+
+  // ===== MODAL =====
+  function closeModal(){ document.getElementById('detailModal').classList.remove('active'); }
+  document.getElementById('detailModal').addEventListener('click', function(e){ if (e.target === this) closeModal(); });
+
+  // ===== AUTO REFRESH =====
   setInterval(() => {
-    if (currentFilter === 'all') loadAppointments();
-    else if (currentFilter === 'today') loadTodayAppointments();
-    else if (currentFilter === 'pending') loadPendingAppointments();
-    loadStats();
-  }, 30000);
+    if (document.getElementById('dashboard').classList.contains('active')) refreshActive();
+  }, 60000);
 
-  // Load
-  loadDashboard();
+  // init
+  switchOrg('leela');
 </script>
 
 </body>
